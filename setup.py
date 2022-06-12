@@ -32,7 +32,7 @@ setup(
     install_requires=[
         'pyOpenSSL>=22.0.0',
         'pycrypto>=2.6.1',
-        'requests>=2.28.0',
+        'requests>=2.27.1',
         'signxml>=2.9.0',
         'pyasn1>=0.4.8'
     ],
