@@ -1,17 +1,12 @@
-# -*- coding: utf-8 -*-
-
+from hashlib import md5
 from uuid import uuid4
 from datetime import datetime
 from lxml import etree as et
 import requests
 from signxml import XMLSigner, XMLVerifier
-from cryptography.exceptions import InvalidSignature
-from OpenSSL.crypto import load_certificate, FILETYPE_PEM
 import re
-from Crypto.Signature import PKCS1_v1_5
-from Crypto.Hash import SHA, MD5
-from Crypto.PublicKey import RSA
 import os
+from OpenSSL import crypto
 
 class XMLValidator:
     """
@@ -39,7 +34,7 @@ class XMLValidatorLen(XMLValidator):
     def validate(self, value):
         if(value == None):
             return True
-        if (type(value) == unicode or type(value) == str):
+        if (type(value) == str):
             lenght = len(value)
             if(lenght >=self.min and lenght <=self.max):
                 return True
@@ -54,14 +49,11 @@ class XMLValidatorRegEx(XMLValidator):
         Args:
             regex (str): is regular expression
         """
-        if(type(regex) == unicode):
-            self.regex = re.compile(regex, re.UNICODE)
-        else:
-            self.regex = re.compile(regex, re.UNICODE)
+        self.regex = re.compile(regex)
     def validate(self, value):
         if(value == None):
             return True
-        if (type(value) == unicode or type(value) == str):
+        if (type(value) == str):
             if(self.regex.match(value) != None):
                 return True
         return False
@@ -217,7 +209,7 @@ class XMLElement(object):
                             raise ValueError("Attribute " + key + " of class " + self.__class__.__name__ + " is required!")
                 value = self.__dict__['items'][key]
                 if value != None:
-                    if(type(value) is str or type(value) is unicode):
+                    if(type(value) is str):
                         svar = et.SubElement(xml, self.__dict__["namespace"] + key)
                         svar.text = value
                     elif(type(value) is list):
@@ -248,7 +240,7 @@ class XMLElement(object):
         if name == "items":
             return
         if(name == "text"):
-            if(type(value) == str or type(value) == unicode):
+            if(type(value) == str):
                 if(self._validateValue(name, value)):
                     self.__dict__['items'] = dict()
                     self.__dict__['text'] = value
@@ -404,10 +396,11 @@ class FiskSOAPClient(object):
             response = r.text
         else:
             if (r.headers['Content-Type']=="text/xml"):
-                response = r.content
+                response = r.text
             else:
                 raise FiskSOAPClientError(str(r.status_code) + ": " + r.reason)
-        responseXML = et.fromstring(str(response))
+        print(response, type(response))
+        responseXML = et.fromstring(response.encode('utf-8'))
         for relement in responseXML.iter():
                 if(relement.tag.find("faultstring") != -1):
                     raise FiskSOAPClientError(relement.text)
@@ -500,14 +493,14 @@ class Signer(object):
 
         #dodavanje Signature taga
         namespace = "{http://www.w3.org/2000/09/xmldsig#}"
-        Signature = et.SubElement(RequestElement, namespace + "Signature", {'Id':'placeholder'})
+        et.SubElement(RequestElement, namespace + "Signature", {'Id':'placeholder'})
 
         #signer = xmldsig(RequestElement, digest_algorithm="sha1")
         signed_root = XMLSigner(signature_algorithm="rsa-sha1",
                                 digest_algorithm="sha1",
                                 c14n_algorithm="http://www.w3.org/2001/10/xml-exc-c14n#").sign(root,
                                     key=self.key,
-                                    passphrase=self.password,
+                                    passphrase=self.password.encode('utf-8'),
                                     cert=self.certificate,
                                     reference_uri="#" + RequestElement.get("Id"))
 
@@ -529,7 +522,7 @@ class Verifier(object):
         please add it to those files.
         """
         mpath = os.path.dirname(__file__) + '/CAcerts'
-        self.CAs = mpath + "/demoCAfile.pem"
+        self.CAs = mpath + "/demoCAfile2014.pem"
         prodCAfile = mpath + "/prodCAfile.pem"
         if(production):
             self.CAs = prodCAfile
@@ -544,6 +537,7 @@ class Verifier(object):
         root = xml
         rvalue = None
 
+        print(self.CAs)
         rvalue = XMLVerifier().verify(root, ca_pem_file=self.CAs, validate_schema=False)
         if(rvalue.signed_xml != None):
             rvalue = rvalue.signed_xml
@@ -962,14 +956,15 @@ def zastitni_kod(oib, datumVrijeme, brRacuna, ozPoslovnogP, ozUredaja, ukupnoIzn
     """
     forsigning = oib + datumVrijeme + brRacuna + ozPoslovnogP + ozUredaja + ukupnoIznos
 
-    key = RSA.importKey(open(key_filename).read(), key_password)
-    h = SHA.new(forsigning)
-    signer = PKCS1_v1_5.new(key)
-    signature = signer.sign(h)
-
-    md5h = MD5.new()
-    md5h.update(signature)
-    return md5h.hexdigest()
+    with open(key_filename, 'rb') as f:
+        key = crypto.load_privatekey(
+            crypto.FILETYPE_PEM,
+            f.read(),
+            key_password.encode('utf-8')
+        )
+    signature = crypto.sign(key, forsigning.encode('utf-8'), 'sha1')
+    signature = md5(signature).hexdigest()
+    return signature
 
 class Racun(FiskXMLElement):
     """
