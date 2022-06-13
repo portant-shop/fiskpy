@@ -10,8 +10,7 @@ from OpenSSL import crypto
 
 
 class XMLValidator:
-    """Base validator class
-    """
+    """Base validator class."""
 
     def validate(self, value):
         """
@@ -21,14 +20,14 @@ class XMLValidator:
 
 
 class XMLValidatorLen(XMLValidator):
-    """
-    validator which check string lenght
-    """
+    """validator which check string length."""
 
     def __init__(self, min_len, max_len):
         """
+        Init XMLValidatorLen.
+
         Args:
-            min_len (int): Minimum lenght
+            min_len (int): Minimum length
             max_len (int): Maximum length
         """
         self.min = min_len
@@ -45,12 +44,12 @@ class XMLValidatorLen(XMLValidator):
 
 
 class XMLValidatorRegEx(XMLValidator):
-    """
-    regex validator. Returns True if regex is matched or false if it is not.
-    """
+    """regex validator. Returns True if regex is matched or false if it is not."""
 
     def __init__(self, regex):
         """
+        Init.
+
         Args:
             regex (str): is regular expression
         """
@@ -66,13 +65,16 @@ class XMLValidatorRegEx(XMLValidator):
 
 
 class XMLValidatorEnum(XMLValidator):
-    """
-    validator which checks is value in values list. Returns
+    """validator which checks is value in values list.
+
+    Returns
     True if value is found in list and flase if value is ot in the list
     """
 
     def __init__(self, values):
         """
+        Init.
+
         Args:
             values (list): list of possible values
         """
@@ -88,12 +90,12 @@ class XMLValidatorEnum(XMLValidator):
 
 
 class XMLValidatorType(XMLValidator):
-    """
-    type cheking validator
-    """
+    """type cheking validator."""
 
     def __init__(self, typeC):
         """
+        Init.
+
         Args:
             typeC: is object of which type value should be checked.
         """
@@ -101,6 +103,8 @@ class XMLValidatorType(XMLValidator):
 
     def validate(self, value):
         """
+        Validate.
+
         Returns: True if value is not set or if value is of selected
             type otherwise returns False
         """
@@ -114,11 +118,14 @@ class XMLValidatorType(XMLValidator):
 class XMLValidatorListType(XMLValidator):
     """
     validator which checks are all object in list of defined type.
+
     Returns True if they are False if they are not.
     """
 
     def __init__(self, typeC):
         """
+        Init.
+
         Args:
             typeC: tpye for which list itmes will be checked
         """
@@ -138,12 +145,12 @@ class XMLValidatorListType(XMLValidator):
 
 
 class XMLValidatorRequired(XMLValidator):
-    """
-    cheks is value None or not.
-    """
+    """Check if value is None or not."""
 
     def validate(self, value):
         """
+        Validate.
+
         Returns: True if value is not None or False
             if value is None
         """
@@ -154,7 +161,7 @@ class XMLValidatorRequired(XMLValidator):
 
 class XMLElement(object):
     """
-    XMLElement - this is class which knows to represent her self and hers attributes as xml element
+    XMLElement - this is class which knows to represent her self and hers attributes as xml element.
 
     this is usually used as base calss
 
@@ -163,11 +170,12 @@ class XMLElement(object):
 
     def __init__(self, childrenNames=None, namespace="", text=None, data=None, name=None):
         """
-        creates XMLElement object
+        Create XMLElement object.
 
         childrenNames (tuple): ((name1, validators1), (name2, validators2), ...)
         namespace (str): xml namespace used for this class element and its sub elements
-        text (str): if set and if this class does not hold any attribute that this text is text inside xml tag
+        text (str): if set and if this class does not hold any attribute that this text is text
+            inside xml tag
         data (dict): initial data
         name (str): if for some reason you have to use diferent name for xml tag then class name
         """
@@ -197,8 +205,6 @@ class XMLElement(object):
                     self.addValidator(name, validator)
             else:
                 raise TypeError("Validators has to be list of validators")
-
-        #self.addValidator('text', XMLValidatorType(str))
 
         if text is not None:
             self.__setattr__("text", text)
@@ -276,8 +282,11 @@ class XMLElement(object):
             if(self._validateValue(name, value)):
                 self.items[name] = value
             else:
-                raise ValueError("Value " + str(value) + " (" + type(value).__name__ +
-                                 ") is not valid for " + name + " attribute of class " + self.__class__.__name__)
+                raise ValueError(
+                    "Value " + str(value) + " (" + type(value).__name__ +
+                    ") is not valid for " + name + " attribute of class " +
+                    self.__class__.__name__
+                )
 
     def setAvailableChildren(self, names):
         """
@@ -301,7 +310,7 @@ class XMLElement(object):
 
         attrs - dict with keys as attribute names and values as attribure values
         """
-        if(type(attrs), dict):
+        if type(attrs) == dict:
             self.__dict__['attributes'] = attrs
 
     def setNamespace(self, namespace):
@@ -336,8 +345,10 @@ class XMLElement(object):
                 else:
                     self.__dict__["textValidators"].append(validator)
                     if(not self._validateValue(name, self.__dict__["text"])):
-                        raise ValueError("Value " + self.__dict__["text"] + " (" + type(self.__dict__[
-                                         "text"]).__name__ + ") is not valid for " + name + " attribute of class " + self.__class__.__name__)
+                        raise ValueError(
+                            "Value " + self.__dict__["text"] + " (" +
+                            type(self.__dict__["text"]).__name__ + ") is not valid for " +
+                            name + " attribute of class " + self.__class__.__name__)
         else:
             if(name not in self.__dict__["order"]):
                 raise NameError("This object does not have attribute with given value")
@@ -353,11 +364,17 @@ class XMLElement(object):
                     self.__dict__["validators"][name].append(validator)
 
                     if(not self._validateValue(name, self.__dict__["items"][name])):
-                        raise ValueError("Value " + self.__dict__["items"][name] + " (" + type(self.__dict__[
-                                         "items"][name]).__name__ + ") is not valid for " + name + " attribute of class " + self.__class__.__name__)
+                        raise ValueError(
+                            "Value " + self.__dict__["items"][name] + " (" +
+                            type(self.__dict__["items"][name]).__name__ + ") is not valid for " +
+                            name + " attribute of class " + self.__class__.__name__
+                        )
             else:
-                raise TypeError("Validator for " + name + " attribute of " +
-                                self.__class__.__name__ + "class has to be instance or subclass of XMLValidator")
+                raise TypeError(
+                    "Validator for " + name + " attribute of " +
+                    self.__class__.__name__ +
+                    "class has to be instance or subclass of XMLValidator"
+                )
 
     def _validateValue(self, name, value):
         """
@@ -529,15 +546,17 @@ class Signer(object):
         namespace = "{http://www.w3.org/2000/09/xmldsig#}"
         et.SubElement(RequestElement, namespace + "Signature", {'Id': 'placeholder'})
 
-        #signer = xmldsig(RequestElement, digest_algorithm="sha1")
-        signed_root = XMLSigner(signature_algorithm="rsa-sha1",
-                                digest_algorithm="sha1",
-                                c14n_algorithm="http://www.w3.org/2001/10/xml-exc-c14n#").sign(root,
-                                                                                               key=self.key,
-                                                                                               passphrase=self.password.encode(
-                                                                                                   'utf-8'),
-                                                                                               cert=self.certificate,
-                                                                                               reference_uri="#" + RequestElement.get("Id"))
+        signed_root = XMLSigner(
+            signature_algorithm="rsa-sha1",
+            digest_algorithm="sha1",
+            c14n_algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"
+        ).sign(
+            root,
+            key=self.key,
+            passphrase=self.password.encode('utf-8'),
+            cert=self.certificate,
+            reference_uri="#" + RequestElement.get("Id")
+        )
 
         return et.tostring(signed_root)
 
@@ -555,8 +574,8 @@ class Verifier(object):
             production (boolean): if False demo fiscalization environment will be used (default),
                 if True production fiscalization environment will be used
 
-        The locations of files holding CA cerificates are hardcoded so if you need to add some certificate
-        please add it to those files.
+        The locations of files holding CA cerificates are hardcoded so if you need to add some
+        certificate please add it to those files.
         """
         mpath = os.path.dirname(__file__) + '/CAcerts'
         self.CAs = mpath + "/demoCAfile2014.pem"
@@ -721,7 +740,6 @@ class FiskXMLRequest(FiskXMLElement):
             verifier = FiskInit.verifier
         else:
             cl = FiskSOAPClientDemo()
-            #verifier = Verifier()
 
         self.__dict__['lastRequest'] = self.getSOAPMessage()
         # rememer generated IdPoruke nedded for return message check
@@ -744,7 +762,7 @@ class FiskXMLRequest(FiskXMLElement):
         verified_reply = None
         if(reply.find(".//" + signxmlNS + "Signature") is not None):
             has_signature = True
-        if (has_signature == True):
+        if (has_signature is True):
             if (verifier is not None and isinstance(verifier, Verifier)):
                 verified_reply = verifier.verifiyXML(reply)
         else:
@@ -761,26 +779,20 @@ class FiskXMLRequest(FiskXMLElement):
         return verified_reply
 
     def get_last_request(self):
-        """
-        Returns last SOAP message sent to server as ElementTree object
-        """
+        """Return last SOAP message sent to server as ElementTree object."""
         return self.__dict__['lastRequest']
 
     def get_last_response(self):
-        """
-        Returns last SOAP message received from server as ElementTree object
-        """
+        """Return last SOAP message received from server as ElementTree object."""
         return self.__dict__['lastResponse']
 
     def get_last_error(self):
-        """
-        Returns last error which was recieved from PU serever
-        """
+        """Return last error which was recieved from PU serever."""
         return self.__dict__['lastError']
 
     def execute(self):
         """
-        This method returns reply from server or False
+        Return reply from server or False.
 
         If false you can check what was error with get_last_error method
 
@@ -792,34 +804,34 @@ class FiskXMLRequest(FiskXMLElement):
         return False
 
     def get_id_msg(self):
-        """
-        returns last message id if available (Echo request does not have it)
-        """
+        """Return last message id if available (Echo request does not have it)."""
         return self.__dict__['idPoruke']
 
     def get_datetime_msg(self):
-        """
-        returns last message datetime if available (Echo request does not have it)
-        """
+        """Return last message datetime if available (Echo request does not have it)."""
         return self.__dict__['dateTime']
 
 
 class EchoRequest(FiskXMLRequest):
     """
-    EchoRequest fiskal element. This element is capable to send Echo SOAP message to server
+    EchoRequest fiskal element.
+
+    This element is capable to send Echo SOAP message to server
     """
 
     def __init__(self, text=None):
         """
-        creates Echo Request with message defined in text. Althought there is no string limit defined
-        in specification I have put that text should be between 1-1000 chars
+        Init.
+
+        creates Echo Request with message defined in text. Althought there is no string limit
+        defined in specification I have put that text should be between 1-1000 chars
         """
         FiskXMLRequest.__init__(self, text=text, childrenNames=(
             ("text", [XMLValidatorLen(1, 1000), XMLValidatorRequired()]), ))
 
     def execute(self):
         """
-        Sends echo request to server and returns echo reply.
+        Send echo request to server and returns echo reply.
 
         If error occures returns False. You can get last error with get_last_error method
         """
@@ -832,35 +844,49 @@ class EchoRequest(FiskXMLRequest):
                     self.__dict__['namespace'] + "EchoResponse"):
                 reply = relement.text
 
-            if(reply == False):
+            if(reply is False):
                 for relement in self.__dict__['lastResponse'].iter(
                         self.__dict__['namespace'] + "PorukaGreske"):
-                    self.__dict__['lastError'].append(element.text)
+                    self.__dict__['lastError'].append(relement.text)
 
         return reply
 
 
 class Zaglavlje(FiskXMLElement):
     """
-    Zaglavlje fiskal element
+    Zaglavlje fiskal element.
 
     it automaticly generates Idporuke and DateTime
 
-    IdPoruke is regenerated on message creation so you should check this value after element generation not
-        before
+    IdPoruke is regenerated on message creation so you should check this value after element
+    generation not before
 
     Ususaly you will not use this element as it is used internaly by this library
     """
 
     def __init__(self):
-        FiskXMLElement.__init__(self, childrenNames=(("IdPoruke", [XMLValidatorRegEx("^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$")]),
-                                                     ("DatumVrijeme", [XMLValidatorRegEx("^[0-9]{2}.[0-9]{2}.[1-2][0-9]{3}T[0-9]{2}:[0-9]{2}:[0-9]{2}$")])))
+        FiskXMLElement.__init__(
+            self,
+            childrenNames=(
+                (
+                    "IdPoruke",
+                    [XMLValidatorRegEx(
+                        "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+                    )]
+                ),
+                (
+                    "DatumVrijeme", [XMLValidatorRegEx(
+                        "^[0-9]{2}.[0-9]{2}.[1-2][0-9]{3}T[0-9]{2}:[0-9]{2}:[0-9]{2}$"
+                    )]
+                )
+            )
+        )
         self.IdPoruke = str(uuid4())
         self.DatumVrijeme = datetime.now().strftime('%d.%m.%YT%H:%M:%S')
         self.addValidator("IdPoruke", XMLValidatorRequired())
         self.addValidator("DatumVrijeme", XMLValidatorRequired())
 
-    def generate(self):  # overide because we have to have new ID and time for every message we sent to porezna
+    def generate(self):  # overide because need new ID and time for every message we sent to porezna
         self.IdPoruke = str(uuid4())
         self.DatumVrijeme = datetime.now().strftime('%d.%m.%YT%H:%M:%S')
         return FiskXMLElement.generate(self)
@@ -911,20 +937,28 @@ class PoslovniProstor(FiskXMLElement):
 
     def __init__(self, data=None):
         string1000Val = XMLValidatorLen(1, 1000)
-        FiskXMLElement.__init__(self, childrenNames=(("Oib", [XMLValidatorRegEx("^\\d{11}$"), XMLValidatorRequired()]),
-                                                     ("OznPoslProstora", [XMLValidatorRegEx(
-                                                         "^[0-9a-zA-Z]{1,20}$"), XMLValidatorRequired()]),
-                                                     ("AdresniPodatak", [XMLValidatorType(
-                                                         AdresniPodatak), XMLValidatorRequired()]),
-                                                     ("RadnoVrijeme", [
-                                                      string1000Val, XMLValidatorRequired()]),
-                                                     ("DatumPocetkaPrimjene", [XMLValidatorRegEx(
-                                                         "^[0-9]{2}.[0-9]{2}.[1-2][0-9]{3}$"), XMLValidatorRequired()]),
-                                                     ("OznakaZatvaranja", [
-                                                      XMLValidatorEnum(["Z"])]),
-                                                     ("SpecNamj", [string1000Val])
-                                                     ),
-                                data=data)
+        FiskXMLElement.__init__(
+            self,
+            childrenNames=(
+                ("Oib", [XMLValidatorRegEx("^\\d{11}$"), XMLValidatorRequired()]),
+                (
+                    "OznPoslProstora",
+                    [XMLValidatorRegEx("^[0-9a-zA-Z]{1,20}$"), XMLValidatorRequired()]
+                ),
+                ("AdresniPodatak", [XMLValidatorType(AdresniPodatak), XMLValidatorRequired()]),
+                ("RadnoVrijeme", [string1000Val, XMLValidatorRequired()]),
+                (
+                    "DatumPocetkaPrimjene",
+                    [
+                        XMLValidatorRegEx("^[0-9]{2}.[0-9]{2}.[1-2][0-9]{3}$"),
+                        XMLValidatorRequired()
+                    ]
+                ),
+                ("OznakaZatvaranja", [XMLValidatorEnum(["Z"])]),
+                ("SpecNamj", [string1000Val])
+            ),
+            data=data
+        )
 
 
 class PoslovniProstorZahtjev(FiskXMLRequest):
@@ -934,9 +968,14 @@ class PoslovniProstorZahtjev(FiskXMLRequest):
     """
 
     def __init__(self, poslovniProstor):
-        FiskXMLRequest.__init__(self, childrenNames=(("Zaglavlje", [XMLValidatorType(Zaglavlje)]),
-                                                     ("PoslovniProstor", [XMLValidatorType(PoslovniProstor), XMLValidatorRequired()])),
-                                data={"PoslovniProstor": poslovniProstor})
+        FiskXMLRequest.__init__(
+            self,
+            childrenNames=(
+                ("Zaglavlje", [XMLValidatorType(Zaglavlje)]),
+                ("PoslovniProstor", [XMLValidatorType(PoslovniProstor), XMLValidatorRequired()])
+            ),
+            data={"PoslovniProstor": poslovniProstor}
+        )
         self.Zaglavlje = Zaglavlje()
         self.setAttr({"Id": "ppz"})
         self.addValidator("Zaglavlje", XMLValidatorRequired())
@@ -969,11 +1008,15 @@ class BrRac(FiskXMLElement):
 
     def __init__(self, data=None):
         regexVal = XMLValidatorRegEx("^\\d{1,20}$")
-        FiskXMLElement.__init__(self, childrenNames=(("BrOznRac", [regexVal, XMLValidatorRequired()]),
-                                                     ("OznPosPr", [XMLValidatorRegEx(
-                                                         "^[0-9a-zA-Z]{1,20}$"), XMLValidatorRequired()]),
-                                                     ("OznNapUr", [regexVal, XMLValidatorRequired()])),
-                                data=data)
+        FiskXMLElement.__init__(
+            self,
+            childrenNames=(
+                ("BrOznRac", [regexVal, XMLValidatorRequired()]),
+                ("OznPosPr", [XMLValidatorRegEx("^[0-9a-zA-Z]{1,20}$"), XMLValidatorRequired()]),
+                ("OznNapUr", [regexVal, XMLValidatorRequired()])
+            ),
+            data=data
+        )
 
 
 class Porez(FiskXMLElement):
@@ -983,11 +1026,18 @@ class Porez(FiskXMLElement):
 
     def __init__(self, data=None):
         regexVal = XMLValidatorRegEx("^([+-]?)[0-9]{1,15}\\.[0-9]{2}$")
-        FiskXMLElement.__init__(self, childrenNames=(("Stopa", [XMLValidatorRegEx("^([+-]?)[0-9]{1,3}\\.[0-9]{2}$"), XMLValidatorRequired()]),
-                                                     ("Osnovica", [
-                                                      regexVal, XMLValidatorRequired()]),
-                                                     ("Iznos", [regexVal, XMLValidatorRequired()])),
-                                data=data)
+        FiskXMLElement.__init__(
+            self,
+            childrenNames=(
+                (
+                    "Stopa",
+                    [XMLValidatorRegEx("^([+-]?)[0-9]{1,3}\\.[0-9]{2}$"), XMLValidatorRequired()]
+                ),
+                ("Osnovica", [regexVal, XMLValidatorRequired()]),
+                ("Iznos", [regexVal, XMLValidatorRequired()])
+            ),
+            data=data
+        )
 
 
 class OstPorez(FiskXMLElement):
@@ -997,14 +1047,20 @@ class OstPorez(FiskXMLElement):
 
     def __init__(self, data=None):
         regexVal = XMLValidatorRegEx("^([+-]?)[0-9]{1,15}\\.[0-9]{2}$")
-        FiskXMLElement.__init__(self, childrenNames=(("Naziv", [XMLValidatorLen(1, 100), XMLValidatorRequired()]),
-                                                     ("Stopa", [XMLValidatorRegEx(
-                                                         "^([+-]?)[0-9]{1,3}\\.[0-9]{2}$"), XMLValidatorRequired()]),
-                                                     ("Osnovica", [
-                                                      regexVal, XMLValidatorRequired()]),
-                                                     ("Iznos", [regexVal, XMLValidatorRequired()])),
-                                data=data,
-                                name="Porez")
+        FiskXMLElement.__init__(
+            self,
+            childrenNames=(
+                ("Naziv", [XMLValidatorLen(1, 100), XMLValidatorRequired()]),
+                (
+                    "Stopa",
+                    [XMLValidatorRegEx("^([+-]?)[0-9]{1,3}\\.[0-9]{2}$"), XMLValidatorRequired()]
+                ),
+                ("Osnovica", [regexVal, XMLValidatorRequired()]),
+                ("Iznos", [regexVal, XMLValidatorRequired()])
+            ),
+            data=data,
+            name="Porez"
+        )
 
 
 class Naknada(FiskXMLElement):
@@ -1013,9 +1069,17 @@ class Naknada(FiskXMLElement):
     """
 
     def __init__(self, data=None):
-        FiskXMLElement.__init__(self, childrenNames=(("NazivN", [XMLValidatorLen(1, 100), XMLValidatorRequired()]),
-                                                     ("IznosN", [XMLValidatorRegEx("^([+-]?)[0-9]{1,15}\\.[0-9]{2}$"), XMLValidatorRequired()])),
-                                data=data)
+        FiskXMLElement.__init__(
+            self,
+            childrenNames=(
+                ("NazivN", [XMLValidatorLen(1, 100), XMLValidatorRequired()]),
+                (
+                    "IznosN",
+                    [XMLValidatorRegEx("^([+-]?)[0-9]{1,15}\\.[0-9]{2}$"), XMLValidatorRequired()]
+                )
+            ),
+            data=data
+        )
 
 
 def zastitni_kod(oib, datumVrijeme, brRacuna, ozPoslovnogP,
