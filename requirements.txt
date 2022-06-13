@@ -3,3 +3,7 @@ pycrypto>=2.6.1
 requests>=2.20.0
 signxml>=2.9.0
 pyasn1>=0.4.8
+
+# development
+flake8==4.0.1
+flake8-docstrings==1.6.0
