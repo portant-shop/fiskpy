@@ -4,7 +4,6 @@ from fisk.client import FiskSOAPClientDemo
 from fisk.elements import PoslovniProstor, Racun, Zaglavlje
 from fisk.signer import Signer
 from fisk.validator import XMLValidatorLen, XMLValidatorRequired, XMLValidatorType
-from fisk.verifier import Verifier
 from fisk.xml import FiskXMLElement
 from lxml import etree as et
 
@@ -61,14 +60,12 @@ class FiskXMLRequest(FiskXMLElement):
             message = signer.signXML(self.__dict__['lastRequest'], self.getElementName())
 
         reply = cl.send(message)
-        print('reply is', et.tostring(reply))
         has_signature = False
         verified_reply = None
         if reply.find(".//" + signxmlNS + "Signature") is not None:
             has_signature = True
-        if (has_signature is True):
-            if (verifier is not None and isinstance(verifier, Verifier)):
-                verified_reply = verifier.verifiyXML(reply)
+        if has_signature is True and verifier is not None:
+            verified_reply = verifier.verifiyXML(reply)
         else:
             verified_reply = reply
 

@@ -26,7 +26,9 @@ class FiskInit():
     verifier = None
 
     @staticmethod
-    def init(key_file, password, cert_file, production=False):
+    def init(
+        key_file, password, cert_file, production=False, demo_skip_signature_verification=False
+    ):
         """
         Set default fiscalization environment DEMO or PRODUCTION.
 
@@ -36,10 +38,14 @@ class FiskInit():
             cert_file (str): path to fiscalization user certificate in pem fromat
             production (boolean): True if you need fiscalization production environment,
                 for demo False. Default is False
+            demo_skip_signature_verification (boolean): True if you want to skip signature in demo
         """
         FiskInit.key_file = key_file
         FiskInit.password = password
-        FiskInit.verifier = Verifier(production)
+        if not production and demo_skip_signature_verification:
+            FiskInit.verifier = None
+        elif demo_skip_signature_verification:
+            FiskInit.verifier = Verifier(production)
         FiskInit.environment = FiskSOAPClientDemo()
         if (production):
             FiskInit.environment = FiskSOAPClientProduction()
