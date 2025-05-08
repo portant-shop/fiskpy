@@ -44,7 +44,6 @@ class Signer:
             raise FiskXMLEleSignerError(self.init_error)
 
         root = fiskXML
-        # print(et.tostring(root))
         RequestElement = None
 
         for child in root.iter(elementToSign):
