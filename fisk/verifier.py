@@ -21,7 +21,6 @@ class Verifier(object):
         certificate please add it to those files.
         """
         mpath = os.path.dirname(__file__) + '/CAcerts'
-        print(mpath)
         self.CAs = mpath + "/demoCAfile2020.pem"
         prodCAfile = mpath + "/prodCAfile.pem"
         if production:
