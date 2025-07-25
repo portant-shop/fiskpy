@@ -65,7 +65,7 @@ class Signer:
         ).sign(
             root,
             key=self.key,
-            passphrase=self.password.encode('utf-8'),
+            passphrase=self.password.encode('utf-8') if self.password else None,
             cert=self.certificate,
             reference_uri="#" + RequestElement.get("Id")
         )

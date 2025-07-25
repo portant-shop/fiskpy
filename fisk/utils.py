@@ -26,7 +26,7 @@ def zastitni_kod(
         key = crypto.load_privatekey(
             crypto.FILETYPE_PEM,
             f.read(),
-            key_password.encode('utf-8')
+            passphrase=key_password.encode('utf-8') if key_password else None
         )
     private_key = key.to_cryptography_key()
     signature = private_key.sign(
